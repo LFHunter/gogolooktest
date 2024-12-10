@@ -24,12 +24,8 @@ driver = webdriver.Chrome(service=service, options=chrome_options)
 #PS: 請限制瀏覽器 1440x768 的視窗大小來進行以下步驟 步驟1. 前往 台灣證券交易所 頁面 https://www.twse.com.tw/zh/index.html
 driver.get("https://www.twse.com.tw/zh/index.html")
 
-
-actions = ActionChains(driver)
-
 #交易資訊
 element = driver.find_element(By.XPATH, "//*[text()='交易資訊']")
-#actions.move_to_element(element).perform()
 
 #個股日收盤價及月平均價 
 element = WebDriverWait(driver, 10).until(
@@ -59,7 +55,7 @@ search_element =  driver.find_element(By.XPATH, "//button[@class='search']")
 search_element.click()
 
 element = WebDriverWait(driver, 10).until(
-    EC.presence_of_element_located((By.XPATH, "//td[text()='112/01/31']"))
+    EC.presence_of_element_located((By.XPATH, "//td[text()='月平均收盤價']"))
 )
 
 
@@ -76,6 +72,14 @@ for tr in all_trs:
 
 
 #步驟7. 截圖台積電 112 年 01 月份的每日收盤價資訊
+zoom_level = 0.75
+driver.execute_script(f"document.body.style.zoom='{zoom_level}'")
+time.sleep(5)
+target = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.XPATH, "//td[text()='月平均收盤價']"))
+    )
+actions = ActionChains(driver)
+actions.scroll_by_amount(0, 200).perform()
 driver.save_screenshot("tsmc.png")
 time.sleep(20)
 
