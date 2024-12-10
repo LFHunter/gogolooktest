@@ -6,8 +6,10 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import Select
 import time
-
+from bs4 import BeautifulSoup
+from lxml import etree
 
 # 配置 ChromeOptions
 chrome_options = Options()
@@ -38,8 +40,43 @@ driver.get(new_url)
 
 
 #步驟3. 選取年份 民國 112 年 01 月
-element = driver.find_element(By.XPATH, "//*[name='yy']")
+month_element = driver.find_element(By.XPATH, "//*[@name='yy']")
+select = Select(month_element)
+select.select_by_visible_text("民國 112 年")
+
+day_element =  driver.find_element(By.XPATH, "//*[@name='mm']")
+select = Select(day_element)
+select.select_by_visible_text("01月")
+
+
+#步驟4. 輸入股票代碼 2330
+stock_element =  driver.find_element(By.XPATH, "//*[@name='stockNo']")
+stock_element.clear()
+stock_element.send_keys("2330")
+
+#步驟5. 點選查詢按鈕
+search_element =  driver.find_element(By.XPATH, "//button[@class='search']")
+search_element.click()
+
+element = WebDriverWait(driver, 10).until(
+    EC.presence_of_element_located((By.XPATH, "//td[text()='112/01/31']"))
+)
+
+
+#步驟6. 將台積電 112 年 01 月份的每日收盤價 print 出來
+page_source = driver.page_source
+soup = BeautifulSoup(page_source, "html.parser")
+dom = etree.HTML(str(soup))
+all_trs = dom.xpath(("//tbody//tr"))
+print("台積電 112 年 01 月份的每日收盤價 ")
+print("日期,      收盤價")
+for tr in all_trs:
+     print(f"{tr[0].text}, {tr[1].text}")
 
 
 
+#步驟7. 截圖台積電 112 年 01 月份的每日收盤價資訊
+driver.save_screenshot("tsmc.png")
+time.sleep(20)
 
+driver.quit()
