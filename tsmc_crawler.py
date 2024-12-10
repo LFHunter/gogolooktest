@@ -25,14 +25,15 @@ driver = webdriver.Chrome(service=service, options=chrome_options)
 driver.get("https://www.twse.com.tw/zh/index.html")
 
 #交易資訊
-element = driver.find_element(By.XPATH, "//*[text()='交易資訊']")
-
+element = driver.find_elements(By.XPATH, "//*[text()='交易資訊']/..")[1]
+element.click()
 #個股日收盤價及月平均價 
-element = WebDriverWait(driver, 10).until(
-    EC.presence_of_element_located((By.XPATH, "//*[text()='個股日收盤價及月平均價']"))
+
+#element = driver.find_elements(By.XPATH, "//a[text()='個股日收盤價及月平均價'][2]")
+element = WebDriverWait(driver, 15).until(
+    EC.element_to_be_clickable((By.XPATH, "(//a[text()='個股日收盤價及月平均價'])[2]"))
 )
-new_url = element.get_attribute("href")
-driver.get(new_url)
+element.click()
 
 
 #步驟3. 選取年份 民國 112 年 01 月
